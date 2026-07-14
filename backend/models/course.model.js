@@ -1,4 +1,4 @@
-import { model, Schema } from "mongoose";
+import { Schema, model } from "mongoose";
 
 const lectureSchema = new Schema(
   {
@@ -20,27 +20,26 @@ const lectureSchema = new Schema(
     },
   },
   {
-    _id: false,
-  },
+  timestamps: true,
+}
 );
 
 const courseSchema = new Schema(
   {
     title: {
       type: String,
-      required: [true, "Title is required"],
-      unique: true,
-      minlength: [8, "Title must be at least 8 characters"],
-      maxlength: [60, "Title cannot exceed 60 characters"],
+      required: [true, "Course title is required"],
       trim: true,
+      minlength: [3, "Title must be at least 3 characters"],
+      maxlength: [100, "Title cannot exceed 100 characters"],
     },
 
     description: {
       type: String,
       required: [true, "Description is required"],
-      minlength: [8, "Description must be at least 8 characters"],
-      maxlength: [500, "Description cannot exceed 500 characters"],
       trim: true,
+      minlength: [10, "Description must be at least 10 characters"],
+      maxlength: [1000, "Description cannot exceed 1000 characters"],
     },
 
     category: {
@@ -55,27 +54,39 @@ const courseSchema = new Schema(
       default: "Beginner",
     },
 
+    price: {
+      type: Number,
+      required: [true, "Price is required"],
+      min: [0, "Price cannot be negative"],
+      default: 0,
+    },
+
     thumbnail: {
       type: String,
       default: "",
     },
-    price: {
-      type: Number,
-      required: [true, "Price is required"],
-      default: 0,
-    },
 
-    lectures: [lectureSchema],
+    lectures: {
+      type: [lectureSchema],
+      default: [],
+    },
 
     createdBy: {
       type: Schema.Types.ObjectId,
       ref: "User",
       required: true,
     },
+
+    students: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: "User",
+      },
+    ],
   },
   {
     timestamps: true,
-  },
+  }
 );
 
 export default model("Course", courseSchema);

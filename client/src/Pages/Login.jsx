@@ -2,9 +2,11 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import api from "../api/axios";
+import { useAuth } from "../context/AuthContext";
 
 export default function Login() {
   const navigate = useNavigate();
+  const { login } = useAuth();
 
   const [loading, setLoading] = useState(false);
 
@@ -32,16 +34,25 @@ export default function Login() {
       setLoading(true);
 
       const res = await api.post("/user/login", data);
-      // console.log(res.data);
-      if (res.data.success) {
-        toast.success("Login successful");
-       localStorage.setItem("user", JSON.stringify(res.data.user));
 
-window.location.href = "/";
-        // navigate("/");
+      if (res.data.success) {
+        // Save token if your backend returns one
+        if (res.data.token) {
+          localStorage.setItem("token", res.data.token);
+        }
+
+        // Update global auth state
+        login(res.data.user);
+
+        toast.success(res.data.message || "Login successful");
+
+        // Navigate without reloading
+        navigate("/");
       }
     } catch (error) {
-      toast.error(error.response?.data?.message || "Invalid email or password");
+      toast.error(
+        error.response?.data?.message || "Invalid email or password"
+      );
     } finally {
       setLoading(false);
     }
@@ -90,6 +101,7 @@ window.location.href = "/";
           </div>
 
           <button
+            type="submit"
             disabled={loading}
             className="w-full py-3 rounded-xl bg-primary text-black font-bold transition-all duration-300 hover:opacity-90 hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
           >
@@ -99,7 +111,10 @@ window.location.href = "/";
 
         <p className="mt-6 text-center text-gray-600 dark:text-gray-400">
           Don't have an account?{" "}
-          <Link to="/signup" className="text-primary font-semibold hover:underline">
+          <Link
+            to="/signup"
+            className="text-primary font-semibold hover:underline"
+          >
             Signup
           </Link>
         </p>

@@ -1,44 +1,42 @@
 import { Router } from "express";
 
 import {
-    getAllCourses,
-    getCourseById,
-    createCourse,
-    updateCourse,
-    deleteCourse
+  getAllCourses,
+  getCourseById,
+  createCourse,
+  updateCourse,
+  deleteCourse,
 } from "../controllers/course.controller.js";
 
 import {
-    isLoggedIn,
-    authorizeRoles
+  isLoggedIn,
+  authorizeRoles,
 } from "../middleware/auth.middleware.js";
 
 const router = Router();
 
-// Public Routes
 router.get("/", getAllCourses);
 router.get("/:id", getCourseById);
 
-// Admin Routes
 router.post(
-    "/",
-    isLoggedIn,
-    authorizeRoles("ADMIN"),
-    createCourse
+  "/",
+  isLoggedIn,
+  authorizeRoles("ADMIN"),
+  createCourse
 );
 
 router.put(
-    "/:id",
-    isLoggedIn,
-    authorizeRoles("ADMIN"),
-    updateCourse
+  "/:id",
+  isLoggedIn,
+  authorizeRoles("ADMIN"),
+  updateCourse
 );
 
 router.delete(
-    "/:id",
-    isLoggedIn,
-    authorizeRoles("ADMIN"),
-    deleteCourse
+  "/:id",
+  isLoggedIn,
+  authorizeRoles("ADMIN"),
+  deleteCourse
 );
 
 export default router;

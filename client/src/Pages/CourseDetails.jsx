@@ -1,13 +1,16 @@
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import api from "../api/axios";
 
 export default function CourseDetails() {
   const { id } = useParams();
+  const navigate = useNavigate();
 
   const [course, setCourse] = useState(null);
   const [loading, setLoading] = useState(true);
+
+  const user = JSON.parse(localStorage.getItem("user"));
 
   const getCourse = async () => {
     try {
@@ -17,7 +20,9 @@ export default function CourseDetails() {
         setCourse(res.data.course);
       }
     } catch (error) {
-      toast.error(error.response?.data?.message || "Failed to fetch course");
+      toast.error(
+        error.response?.data?.message || "Failed to fetch course"
+      );
     } finally {
       setLoading(false);
     }
@@ -26,6 +31,10 @@ export default function CourseDetails() {
   useEffect(() => {
     getCourse();
   }, [id]);
+
+  const isEnrolled = course?.students?.some(
+    (student) => student.toString() === user?.id
+  );
 
   if (loading) {
     return (
@@ -47,7 +56,10 @@ export default function CourseDetails() {
     <div className="mx-auto max-w-7xl px-6 py-10">
       <div className="grid gap-10 lg:grid-cols-2">
         <img
-          src={course.thumbnail || "https://placehold.co/700x450?text=Course"}
+          src={
+            course.thumbnail ||
+            "https://placehold.co/700x450?text=Course"
+          }
           alt={course.title}
           className="h-[400px] w-full rounded-2xl object-cover shadow-lg"
         />
@@ -77,13 +89,24 @@ export default function CourseDetails() {
             </p>
 
             <p className="text-3xl font-bold text-primary">
-              ₹{course.price || 0}
+              ₹{course.price}
             </p>
           </div>
 
-          <button className="rounded-xl bg-primary px-8 py-3 font-semibold text-black transition hover:opacity-90">
-            Enroll Now
-          </button>
+          {isEnrolled ? (
+            <button
+              className="rounded-xl bg-green-500 px-8 py-3 font-semibold text-white"
+            >
+              Go to Course
+            </button>
+          ) : (
+            <button
+              onClick={() => navigate(`/payment/${id}`)}
+              className="rounded-xl bg-primary px-8 py-3 font-semibold text-black transition hover:opacity-90"
+            >
+              Enroll Now
+            </button>
+          )}
         </div>
       </div>
     </div>

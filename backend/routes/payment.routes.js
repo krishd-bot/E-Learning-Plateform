@@ -1,28 +1,14 @@
 import { Router } from "express";
-
 import {
-    buyCourse,
-    getPaymentHistory
+  buyCourse,
+  getPaymentHistory,
 } from "../controllers/payment.controller.js";
-
-import {
-    isLoggedIn
-} from "../middleware/auth.middleware.js";
+import { isLoggedIn } from "../middleware/auth.middleware.js";
 
 const router = Router();
 
-// Buy a course
-router.post(
-    "/buy",
-    isLoggedIn,
-    buyCourse
-);
+router.post("/buy", isLoggedIn, buyCourse);
 
-// Get logged-in user's payment history
-router.get(
-    "/history",
-    isLoggedIn,
-    getPaymentHistory
-);
+router.get("/history", isLoggedIn, getPaymentHistory);
 
 export default router;

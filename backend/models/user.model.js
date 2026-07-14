@@ -28,13 +28,18 @@ const userSchema = new Schema(
       select: false,
     },
 
-   
-
     role: {
       type: String,
       enum: ["USER", "ADMIN"],
       default: "USER",
     },
+
+    enrolledCourses: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: "Course",
+      },
+    ],
   },
   {
     timestamps: true,

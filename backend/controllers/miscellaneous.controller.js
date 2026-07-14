@@ -1,5 +1,5 @@
 import AppError from "../utils/error.utils.js";
-import sendEmail from "../utils/sendEmail.js";
+
 import User from "../models/user.model.js";
 import Course from "../models/course.model.js";
 const contactUs = async (req, res, next) => {

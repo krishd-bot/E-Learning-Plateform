@@ -1,12 +1,17 @@
 import { Router } from "express";
-import { register, login } from "../controllers/user.controller.js";
+import {
+  register,
+  login,
+  getMyCourses,
+} from "../controllers/user.controller.js";
+
+import { isLoggedIn } from "../middleware/auth.middleware.js";
 
 const router = Router();
 
-// Register
 router.post("/register", register);
-
-// Login
 router.post("/login", login);
+
+router.get("/my-courses", isLoggedIn, getMyCourses);
 
 export default router;

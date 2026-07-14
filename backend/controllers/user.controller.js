@@ -62,7 +62,6 @@ const login = async (req, res, next) => {
     }
 
     const user = await userModel.findOne({ email }).select("+password");
-    
 
     if (!user) {
       return next(new AppError("Invalid email or password.", 401));
@@ -93,4 +92,23 @@ const login = async (req, res, next) => {
   }
 };
 
-export { register, login };
+const getMyCourses = async (req, res, next) => {
+  try {
+    const user = await userModel
+      .findById(req.user.id)
+      .populate("enrolledCourses");
+
+    res.status(200).json({
+      success: true,
+      courses: user.enrolledCourses,
+    });
+  } catch (error) {
+    next(new AppError(error.message, 500));
+  }
+};
+
+export {
+  register,
+  login,
+  getMyCourses,
+};
