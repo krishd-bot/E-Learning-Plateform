@@ -1,47 +1,46 @@
-import React from "react";
-import { useNavigate } from "react-router-dom";
-import { FaPlay, FaBook, FaUser } from "react-icons/fa";
+import { Link } from "react-router-dom";
 
-export default function CourseCard({ data }) {
-  const navigate = useNavigate();
- 
-
+export default function CourseCard({ course }) {
   return (
-    <div 
-      className="md:w-[22rem] w-[95%] md:h-[445px] h-[500px] shadow-custom dark:shadow-lg rounded-lg cursor-pointer group overflow-hidden bg-white dark:bg-zinc-700 transition-transform transform hover:scale-[1.01]"
-    onClick={() => navigate("/courses/description/", {state: {...data}})}
-    >
-      <div className="relative overflow-hidden">
-        <img
-          className="h-48 w-full rounded-tl-lg rounded-tr-lg group-hover:scale-[1.05] transition-all ease-in-out duration-300"
-          src={data?.thumbnail?.secure_url}
-          alt="course thumbnail"
-        />
-        <div className="absolute top-2 right-2 p-2 bg-white dark:bg-zinc-700 rounded-full">
-          <FaPlay className="text-yellow-500 dark:text-yellow-400 text-xl" />
-        </div>
-      </div>
-      <div className="p-4 md:space-y-2 space-y-3 text-gray-800 dark:text-white">
-        <h2 className="text-2xl font-semibold line-clamp-2">{data?.title}</h2>
-        <p className="line-clamp-2 font-nunito-sans text-base font-[500]">
-          {data?.description}
+    <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-md transition-all duration-300 hover:-translate-y-1 hover:shadow-xl">
+      <img
+        src={course.thumbnail || "https://placehold.co/600x400?text=Course"}
+        alt={course.title}
+        className="h-52 w-full object-cover"
+      />
+
+      <div className="space-y-4 p-5">
+        <span className="inline-block rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">
+          {course.category}
+        </span>
+
+        <h2 className="line-clamp-2 text-xl font-bold text-slate-900">
+          {course.title}
+        </h2>
+
+        <p className="line-clamp-2 text-sm text-slate-600">
+          {course.description}
         </p>
-        <div className="flex items-center space-x-2">
-          <FaBook className="text-yellow-500 dark:text-yellow-400" />
-          <p className="text-base font-semibold">Category: {data?.category}</p>
+
+        <div className="flex items-center justify-between">
+          <div>
+            <p className="text-sm text-slate-500">Instructor</p>
+            <p className="font-semibold">
+              {course.createdBy?.fullName || "Admin"}
+            </p>
+          </div>
+
+          <h3 className="text-2xl font-bold text-primary">
+            ₹{course.price || 0}
+          </h3>
         </div>
-        <div className="flex items-center space-x-2">
-          <FaBook className="text-yellow-500 dark:text-yellow-400" />
-          <p className="text-base font-semibold">
-            Total lectures: {data?.numberoflectures}
-          </p>
-        </div>
-        <div className="flex items-center space-x-2">
-          <FaUser className="text-yellow-500 dark:text-yellow-400" />
-          <p className="text-base font-semibold">
-            Instructor: {data?.createdBy}
-          </p>
-        </div>
+
+        <Link
+          to={`/course/${course._id}`}
+          className="block rounded-xl bg-primary py-3 text-center font-semibold text-black transition hover:opacity-90"
+        >
+          View Details
+        </Link>
       </div>
     </div>
   );

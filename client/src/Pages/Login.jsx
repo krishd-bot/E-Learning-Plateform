@@ -1,104 +1,109 @@
 import { useState } from "react";
-import { toast } from "react-hot-toast";
-import { useDispatch } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
-import Layout from "../Layout/Layout";
-import { login } from "../Redux/Slices/AuthSlice";
-import InputBox from "../Components/InputBox/InputBox";
+import toast from "react-hot-toast";
+import api from "../api/axios";
 
 export default function Login() {
-  const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  const [isLoading, setIsLoading] = useState(false);
-  const [loginData, setLoginData] = useState({
+  const [loading, setLoading] = useState(false);
+
+  const [data, setData] = useState({
     email: "",
     password: "",
   });
 
-  function handleUserInput(e) {
-    const { name, value } = e.target;
-    setLoginData({
-      ...loginData,
-      [name]: value,
+  const handleChange = (e) => {
+    setData({
+      ...data,
+      [e.target.name]: e.target.value,
     });
-  }
+  };
 
-  async function onLogin(event) {
-    event.preventDefault();
-    if (!loginData.email || !loginData.password) {
-      toast.error("Please fill all the details");
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    if (!data.email || !data.password) {
+      toast.error("Please fill all fields");
       return;
     }
 
-    setIsLoading(true);
-    const Data = { email: loginData.email, password: loginData.password };
+    try {
+      setLoading(true);
 
-    // dispatch create account action
-    const response = await dispatch(login(Data));
-    if (response?.payload?.success) {
-      setLoginData({
-        email: "",
-        password: "",
-      });
-      navigate("/");
+      const res = await api.post("/user/login", data);
+      // console.log(res.data);
+      if (res.data.success) {
+        toast.success("Login successful");
+       localStorage.setItem("user", JSON.stringify(res.data.user));
+
+window.location.href = "/";
+        // navigate("/");
+      }
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Invalid email or password");
+    } finally {
+      setLoading(false);
     }
-    setIsLoading(false);
-  }
+  };
 
   return (
-    <Layout>
-      <section className="flex flex-col gap-6 items-center py-8 px-3 min-h-[100vh]">
-        <form
-          onSubmit={onLogin}
-          autoComplete="off"
-          noValidate
-          className="flex flex-col dark:bg-base-100 gap-4 rounded-lg md:py-5 py-7 md:px-7 px-3 md:w-[500px] w-full shadow-custom dark:shadow-xl  "
-        >
-          <h1 className="text-center dark:text-purple-500 text-4xl font-bold font-inter">
-            Login Page
-          </h1>
-          {/* email */}
-          <InputBox
-            label={"Email"}
-            name={"email"}
-            type={"email"}
-            placeholder={"Enter your email..."}
-            onChange={handleUserInput}
-            value={loginData.email}
-          />
-          {/* password */}
-          <InputBox
-            label={"Password"}
-            name={"password"}
-            type={"password"}
-            placeholder={"Enter your password..."}
-            onChange={handleUserInput}
-            value={loginData.password}
-          />
+    <div className="min-h-screen flex items-center justify-center bg-gray-100 dark:bg-slate-950 px-4">
+      <div className="w-full max-w-md bg-white dark:bg-slate-900 p-8 rounded-2xl shadow-xl border border-gray-200 dark:border-slate-700">
+        <h1 className="text-4xl font-bold text-center text-gray-900 dark:text-white mb-2">
+          Welcome Back
+        </h1>
 
-          {/* submit btn */}
+        <p className="text-center text-gray-500 dark:text-gray-400 mb-8">
+          Login to continue learning
+        </p>
+
+        <form onSubmit={handleSubmit} className="space-y-5">
+          <div>
+            <label className="block mb-2 text-sm font-medium text-gray-700 dark:text-gray-300">
+              Email
+            </label>
+
+            <input
+              type="email"
+              name="email"
+              value={data.email}
+              onChange={handleChange}
+              placeholder="Enter your email"
+              className="w-full px-4 py-3 rounded-xl border bg-gray-50 dark:bg-slate-800 text-gray-900 dark:text-white border-gray-300 dark:border-slate-700 outline-none focus:ring-2 focus:ring-primary"
+            />
+          </div>
+
+          <div>
+            <label className="block mb-2 text-sm font-medium text-gray-700 dark:text-gray-300">
+              Password
+            </label>
+
+            <input
+              type="password"
+              name="password"
+              value={data.password}
+              onChange={handleChange}
+              placeholder="Enter your password"
+              className="w-full px-4 py-3 rounded-xl border bg-gray-50 dark:bg-slate-800 text-gray-900 dark:text-white border-gray-300 dark:border-slate-700 outline-none focus:ring-2 focus:ring-primary"
+            />
+          </div>
+
           <button
-            type="submit"
-            className="mt-2 bg-yellow-500 text-white dark:text-base-200  transition-all ease-in-out duration-300 rounded-md py-2 font-nunito-sans font-[500]  text-lg cursor-pointer"
-            disabled={isLoading}
+            disabled={loading}
+            className="w-full py-3 rounded-xl bg-primary text-black font-bold transition-all duration-300 hover:opacity-90 hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {isLoading ? "Logging..." : "Login"}
+            {loading ? "Logging in..." : "Login"}
           </button>
-
-          {/* link */}
-          <p className="text-center font-inter text-gray-500 dark:text-slate-300">
-            Do not have an account ?{" "}
-            <Link
-              to="/signup"
-              className="link text-blue-600 font-lato cursor-pointer"
-            >
-              {" "}
-              signup
-            </Link>
-          </p>
         </form>
-      </section>
-    </Layout>
+
+        <p className="mt-6 text-center text-gray-600 dark:text-gray-400">
+          Don't have an account?{" "}
+          <Link to="/signup" className="text-primary font-semibold hover:underline">
+            Signup
+          </Link>
+        </p>
+      </div>
+    </div>
   );
 }

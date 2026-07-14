@@ -1,180 +1,135 @@
 import { useState } from "react";
-import { toast } from "react-hot-toast";
-import { BsPersonCircle } from "react-icons/bs";
-import { useDispatch } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
-import Layout from "../Layout/Layout";
-import { createAccount } from "../Redux/Slices/AuthSlice";
-import InputBox from "../Components/InputBox/InputBox";
+import toast from "react-hot-toast";
+import api from "../api/axios";
 
 export default function Signup() {
-  const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  const [previewImage, setPreviewImage] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  const [isLoading, setIsLoading] = useState(false);
-  const [signupData, setSignupData] = useState({
-    fullName: "",
-    email: "",
-    password: "",
-    avatar: "",
-  });
+  const [data, setData] = useState({
+  fullName: "",
+  email: "",
+  password: "",
+});
 
-  function handleUserInput(e) {
-    const { name, value } = e.target;
-    setSignupData({
-      ...signupData,
-      [name]: value,
+  const handleChange = (e) => {
+    setData({
+      ...data,
+      [e.target.name]: e.target.value,
     });
-  }
+  };
 
-  function getImage(event) {
-    event.preventDefault();
-    // getting the image
-    const uploadedImage = event.target.files[0];
+  const handleSubmit = async (e) => {
+    e.preventDefault();
 
-    if (uploadedImage) {
-      setSignupData({
-        ...signupData,
-        avatar: uploadedImage,
-      });
-      const fileReader = new FileReader();
-      fileReader.readAsDataURL(uploadedImage);
-      fileReader.addEventListener("load", function () {
-        setPreviewImage(this.result);
-      });
-    }
-  }
-
-  async function createNewAccount(event) {
-    event.preventDefault();
-    if (!signupData.email || !signupData.password || !signupData.fullName) {
-      toast.error("Please fill all the details");
+    if (!data.fullName || !data.email || !data.password) {
+      toast.error("Please fill all fields");
       return;
     }
 
-    // checking name field length
-    if (signupData.fullName.length < 3) {
-      toast.error("Name should be atleast of 3 characters");
-      return;
-    }
-    // checking valid email
-    if (!signupData.email.match(/^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/g)) {
-      toast.error("Invalid email id");
-      return;
-    }
+    try {
+      setLoading(true);
 
-    const formData = new FormData();
-    formData.append("fullName", signupData.fullName);
-    formData.append("email", signupData.email);
-    formData.append("password", signupData.password);
-    formData.append("avatar", signupData.avatar);
+      const res = await api.post("/user/register", data);
 
-    // dispatch create account action
-    const response = await dispatch(createAccount(formData));
-    if (response?.payload?.success) {
-      setSignupData({
-        fullName: "",
-        email: "",
-        password: "",
-        avatar: "",
-      });
-      setPreviewImage("");
+      console.log(res.data)
 
-      navigate("/");
+      if (res.data.success) {
+        toast.success("Account created successfully");
+        navigate("/login");
+      }
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Signup failed");
+    } finally {
+      setLoading(false);
     }
-  }
+  };
 
   return (
-    <Layout>
-      <section className="flex flex-col gap-6 items-center py-8 px-3 min-h-[100vh]">
-        <form
-          onSubmit={createNewAccount}
-          autoComplete="off"
-          noValidate
-          className="flex flex-col dark:bg-base-100 gap-4 rounded-lg md:py-5 py-7 md:px-7 px-3 md:w-[500px] w-full shadow-custom dark:shadow-xl  "
-        >
-          <h1 className="text-center dark:text-purple-500 text-4xl font-bold font-inter">
-            Registration Page
+    <div className="flex min-h-screen items-center justify-center bg-slate-100 px-4 transition-all dark:bg-slate-950">
+      <div className="w-full max-w-md rounded-3xl border border-slate-200 bg-white p-8 shadow-2xl dark:border-slate-800 dark:bg-slate-900">
+        <div className="mb-8 text-center">
+          <h1 className="text-4xl font-bold text-slate-900 dark:text-white">
+            Create Account
           </h1>
-          {/* name */}
-          <InputBox
-            label={"Name"}
-            name={"fullName"}
-            type={"text"}
-            placeholder={"Enter your name..."}
-            onChange={handleUserInput}
-            value={signupData.fullName}
-          />
-          {/* email */}
-          <InputBox
-            label={"Email"}
-            name={"email"}
-            type={"email"}
-            placeholder={"Enter your email..."}
-            onChange={handleUserInput}
-            value={signupData.email}
-          />
-          {/* password */}
-          <InputBox
-            label={"Password"}
-            name={"password"}
-            type={"password"}
-            placeholder={"Enter your password..."}
-            onChange={handleUserInput}
-            value={signupData.password}
-          />
-          {/* avatar */}
-          <div className=" flex flex-col gap-2  ">
-            <label
-              htmlFor="image_uploads "
-              className="font-[500] text-xl text-blue-600 dark:text-white font-lato"
-            >
-              Avatar{" "}
-              <span className="text-red-600 font-inter text-lg">
-                {"("}Optional{")"}
-              </span>
+          <p className="mt-2 text-slate-500 dark:text-slate-400">
+            Join our LMS platform and start learning today.
+          </p>
+        </div>
+
+        <form onSubmit={handleSubmit} className="space-y-5">
+          <div>
+            <label className="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-300">
+              Full Name
             </label>
-            <div className="flex gap-7 border border-gray-300 px-2 py-2">
-              {previewImage ? (
-                <img className="w-10 h-10 rounded-full " src={previewImage} />
-              ) : (
-                <BsPersonCircle className="w-10 h-10 rounded-full " />
-              )}
-              <input
-                onChange={getImage}
-                className=" "
-                type="file"
-                name="image_uploads"
-                id="image_uploads"
-                accept=".jpg, .jpeg, .png, image/*"
-              />
-            </div>
+
+            <input
+              type="text"
+              name="fullName"
+              value={data.fullName}
+              onChange={handleChange}
+              placeholder="John Doe"
+              className="w-full rounded-xl border border-slate-300 bg-slate-50 px-4 py-3 text-slate-900 outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/30 dark:border-slate-700 dark:bg-slate-800 dark:text-white"
+            />
           </div>
 
-          {/* submit btn */}
+          <div>
+            <label className="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-300">
+              Email
+            </label>
+
+            <input
+              type="email"
+              name="email"
+              value={data.email}
+              onChange={handleChange}
+              placeholder="john@example.com"
+              className="w-full rounded-xl border border-slate-300 bg-slate-50 px-4 py-3 text-slate-900 outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/30 dark:border-slate-700 dark:bg-slate-800 dark:text-white"
+            />
+          </div>
+
+          <div>
+            <label className="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-300">
+              Password
+            </label>
+
+            <input
+              type="password"
+              name="password"
+              value={data.password}
+              onChange={handleChange}
+              placeholder="••••••••"
+              className="w-full rounded-xl border border-slate-300 bg-slate-50 px-4 py-3 text-slate-900 outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/30 dark:border-slate-700 dark:bg-slate-800 dark:text-white"
+            />
+          </div>
+
           <button
             type="submit"
-            disabled={isLoading}
-            className="mt-2 bg-yellow-500 text-white dark:text-base-200 hover:bg-yellow-300 transition-all ease-in-out duration-300 rounded-md py-2 font-nunito-sans font-[500]  text-lg cursor-pointer"
+            disabled={loading}
+            className="w-full rounded-xl bg-primary py-3 font-semibold text-black transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-primary/30 disabled:cursor-not-allowed disabled:opacity-60"
           >
-            {isLoading ? "Creating account" : "Create account"}
+            {loading ? "Creating Account..." : "Create Account"}
           </button>
-
-          {/* link */}
-          <p className="text-center font-inter text-gray-500 dark:text-slate-300">
-            Already have an account ?{" "}
-            <Link
-              to="/login"
-              className="link text-blue-600 font-lato cursor-pointer"
-            >
-              {" "}
-              Login
-            </Link>
-          </p>
         </form>
-      </section>
-    </Layout>
+
+        <div className="my-6 flex items-center gap-3">
+          <div className="h-px flex-1 bg-slate-300 dark:bg-slate-700"></div>
+          <span className="text-sm text-slate-500">OR</span>
+          <div className="h-px flex-1 bg-slate-300 dark:bg-slate-700"></div>
+        </div>
+
+        <p className="text-center text-slate-600 dark:text-slate-400">
+          Already have an account?
+          <Link
+            to="/login"
+            className="ml-2 font-semibold text-primary transition hover:underline"
+          >
+            Login
+          </Link>
+        </p>
+      </div>
+    </div>
   );
 }

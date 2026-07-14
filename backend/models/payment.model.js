@@ -1,23 +1,46 @@
-import { model, Schema } from 'mongoose';
+import { model, Schema } from "mongoose";
 
-const paymentSchema = new Schema({
-    razorpay_payment_id: {
-        type: String,
-        required: true
+const paymentSchema = new Schema(
+  {
+    user: {
+      type: Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
     },
-    razorpay_subscription_id: {
-        type: String,
-        required: true
+
+    course: {
+      type: Schema.Types.ObjectId,
+      ref: "Course",
+      required: true,
     },
-    razorpay_signature: {
-        type: String,
-        required: true
-    }
-},
-    {
-        timestamps: true
-    })
 
-const Payment = model("Payments", paymentSchema);
+    amount: {
+      type: Number,
+      required: true,
+      min: 0,
+    },
 
-export default Payment
+    paymentMethod: {
+      type: String,
+      enum: ["UPI", "CARD", "NET_BANKING", "WALLET"],
+      default: "UPI",
+    },
+
+    transactionId: {
+      type: String,
+      required: true,
+      unique: true,
+    },
+
+    status: {
+      type: String,
+      enum: ["SUCCESS", "FAILED", "PENDING"],
+      default: "SUCCESS",
+    },
+  },
+  {
+    timestamps: true,
+  }
+);
+
+export default model("Payment", paymentSchema);
