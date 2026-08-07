@@ -27,7 +27,10 @@ const app = express();
 
 app.use(
   cors({
-    origin: process.env.CLIENT_URL || "http://localhost:5173",
+     origin: [
+      "https://e-learning-plateform-qx9c-lkp3lc5nl-deepak392003s-projects.vercel.app",
+      "http://localhost:5173",
+    ],
     credentials: true,
   })
 );
