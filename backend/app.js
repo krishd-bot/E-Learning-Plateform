@@ -25,12 +25,14 @@ import miscellaneousRoutes from "./routes/miscellaneous.routes.js";
 
 const app = express();
 
+const allowedOrigins = [
+  "http://localhost:5173",
+  "https://e-learning-plateform-qx9c-lkp3lc5nl-deepak392003s-projects.vercel.app"
+];
+
 app.use(
   cors({
-     origin: [
-      "https://e-learning-plateform-qx9c-lkp3lc5nl-deepak392003s-projects.vercel.app",
-      "http://localhost:5173",
-    ],
+    origin: allowedOrigins,
     credentials: true,
   })
 );
