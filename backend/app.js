@@ -27,7 +27,7 @@ const app = express();
 
 const allowedOrigins = [
   "http://localhost:5173",
-  "https://e-learning-plateform-qx9c-eo43r8fug-deepak392003s-projects.vercel.app"
+  "https://e-learning-plateform-qx9c-h315n2lpd-projects.vercel.app"
 ];
 
 app.use(
